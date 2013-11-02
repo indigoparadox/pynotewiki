@@ -17,5 +17,7 @@ You should have received a copy of the GNU Lesser General Public License along
 with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-__all__ = ['viewer', 'parser']
+class PyNoteWikiParser:
+   
+   pass
 
