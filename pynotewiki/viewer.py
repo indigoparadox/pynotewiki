@@ -59,10 +59,15 @@ class PyNoteWikiViewer:
       vbox.pack_start( mb, False, False, 0 )
       vbox.pack_start( self.viewer, True, True, 0 )
       self.window.add( vbox )
+      # TODO: Try to find pynotewiki.png on the system.
+      self.window.set_icon_from_file( 'pynotewiki.png' )
       self.window.show_all()
 
       gtk.main()
 
    def dialog_open( self, widget ):
+
+      # TODO: Display a file open dialog.
+
       print 'Not implemented.'
 
