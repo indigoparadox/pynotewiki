@@ -20,3 +20,20 @@ with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 import gtk
 import webkit
 
+class PyNoteWikiViewer:
+   
+   window = None
+   viewer = None
+   
+   def __init__( self ):
+      self.window = gtk.Window()
+      self.window.set_title( 'PyNoteWiki Viewer' )
+      self.window.connect( 'destroy', gtk.main_quit )
+
+      self.viewer = webkit.WebView()
+      self.viewer.load_html_string( 'Welcome to PyNoteWiki!', 'file:///' )
+      self.window.add( self.viewer )
+      self.window.show_all()
+
+      gtk.main()
+
