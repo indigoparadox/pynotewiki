@@ -22,6 +22,8 @@ import webkit
 import wikiconfig
 import os
 import logging
+import urlparse
+import urllib
 from parser import PyNoteWikiParser
 from wikiconfig import PyNoteWikiConfig
 
@@ -139,15 +141,24 @@ class PyNoteWikiViewer:
       if not uri.startswith( 'wiki:' ):
          return False
 
+      # Store the URI for the coming page and parse it to be usable.
       self.pageuri = uri
-      frame.load_string(
-         self.display_html(
-            self.wiki.get_page_html( uri.split( '/' )[3] ), True
-         ),
-         'text/html',
-         'iso-8859-15',
-         uri
-      )
-      poldec.ignore()
-      return True
+      uri_break = urlparse.urlparse( uri )
+      page_name = urllib.unquote_plus( uri_break[2][1:] )
+
+      if None != self.wiki:
+         # Load and display the wiki page.
+         frame.load_string(
+            self.display_html(
+               self.wiki.get_page_html( page_name ), True
+            ),
+            'text/html',
+            'iso-8859-15',
+            uri
+         )
+         poldec.ignore()
+         return True
+      else:
+         # No wiki, probably a system page. Maybe.
+         poldec.use()
 
