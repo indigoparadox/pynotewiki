@@ -94,7 +94,7 @@ class PyNoteWikiViewer:
       vbox.pack_start( self.viewer, True, True, 0 )
       self.window.add( vbox )
       # TODO: Try to find pynotewiki.png on the system.
-      self.window.set_icon_from_file( 'pynotewiki.png' )
+      self.window.set_icon_from_file( '/usr/share/pixmaps/pynotewiki.png' )
       self.window.show_all()
 
       gtk.main()
