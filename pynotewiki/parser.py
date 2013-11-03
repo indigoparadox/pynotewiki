@@ -34,10 +34,12 @@ class PyNoteWikiParser:
 
    def get_page( self, page_title ):
 
+      page = { 'body': '', 'updated': 0 }
+
       # Break out the requested page.
       page_match = re.search(
          '^#--------------------------------------------------\n# ' + \
-         '{}\n\n^page .?{}.? ([{{]?)(.+?)([}}]?) [0-9]+?\n\n\n'.format(
+         '{}\n\n^page .?{}.? ([{{]?)(.+?)([}}]?) ([0-9]+?)\n\n\n'.format(
             page_title, page_title
          ),
          self.contents,
@@ -45,23 +47,26 @@ class PyNoteWikiParser:
       )
 
       if None != page_match:
-         page_body = page_match.groups()[1]
+         page.update( { 'body': page_match.groups()[1] } )
          if '{' != page_match.groups()[0]:
             # No curly brace present, so do extra parsing to remove escaped
             # whitespace.
-            page_body = page_body.decode( 'string_escape' )
-            page_body = page_body.replace( '\\ ', ' ' )
-            page_body = page_body.replace( '\\{', '{' )
-            page_body = page_body.replace( '\\}', '}' )
-         return page_body
-      else:
-         return ''
+            page_body = page.get( 'body' )
+            page_body = page.get( 'body' ).decode( 'string_escape' )
+            page_body = page.get( 'body' ).replace( '\\ ', ' ' )
+            page_body = page.get( 'body' ).replace( '\\{', '{' )
+            page_body = page.get( 'body' ).replace( '\\}', '}' )
+            page.update( { 'body': page_body } )
+
+         page.update( { 'updated': page_match.groups()[3] } )
+
+      return page
 
    def get_page_html( self, page_title ):
 
       ''' Return the contents of the requested page formatted in HTML. '''
 
-      page_contents = self.get_page( page_title )
+      page_contents = self.get_page( page_title ).get( 'body' )
 
       # TODO: Parse wiki markup to HTML.
 
