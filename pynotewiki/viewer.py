@@ -31,6 +31,7 @@ class PyNoteWikiViewer:
    viewer = None
    wiki = None
    logger = None
+   pageuri = None
    
    def __init__( self ):
 
@@ -122,10 +123,18 @@ class PyNoteWikiViewer:
 
    def on_navigate( self, view, frame, req, data=None ):
       uri = req.get_uri()
+
+      # Don't infinitely loop.
+      if uri == self.pageuri:
+         return 2
+
       if uri.startswith( 'wiki:/' ):
          # Allow wiki pages.
          # TODO: Determine valid wiki pages.
-         print uri.split( '/' )
-         return False
+         print uri
+         self.pageuri = uri
+         self.display_html( self.wiki.get_page_html( uri.split( '/' )[3] ) )
+         return 1
+
       return True
 
