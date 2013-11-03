@@ -42,6 +42,7 @@ class PyNoteWikiViewer:
    goingback = False
    config = None
    statusbar = None
+   visitingsame = False
    
    def __init__( self ):
 
@@ -201,10 +202,18 @@ class PyNoteWikiViewer:
    def on_navigate_decision( self, view, frame, req, act, poldec ):
       uri = req.get_uri()
 
-      # Don't infinitely loop.
+      # Don't infinitely loop, but don't allow going to the same page more 
+      # than once because webkit doesn't seem to like that.
       if uri == self.pageuri:
-         poldec.use()
-         return True
+         if not self.visitingsame:
+            poldec.use()
+            self.visitingsame = True
+            return True
+         else:
+            self.logger.debug( 'Attempted to visit same page.' )
+            poldec.ignore()
+            return True
+      self.visitingsame = False
 
       # Store the URI for the coming page and parse it to be usable.
       uri_break = urlparse.urlparse( uri )
@@ -212,8 +221,12 @@ class PyNoteWikiViewer:
 
       # Allow only wiki pages.
       # TODO: Determine valid wiki pages present in the wiki from invalid ones.
-      if not uri.startswith( 'wiki:' ) or '' == page_name:
+      if '' == page_name:
          return False
+
+      if not uri.startswith( 'wiki:' ):
+         poldec.ignore()
+         return True
 
       # Allow allow pages when a wiki is loaded.
       if None == self.wiki:
