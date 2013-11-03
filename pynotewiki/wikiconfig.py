@@ -20,7 +20,7 @@ with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import yaml
 
-WIKI_CONFIG_PATH = os.path.join( os.path.expanduser( '~' ), '.pynotewiki' )
+WIKI_CONFIG_PATH = os.path.join( os.path.expanduser( '~' ), '.pynotewiki.yaml' )
 
 class PyNoteWikiConfig:
 
