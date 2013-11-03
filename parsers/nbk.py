@@ -17,17 +17,3 @@ You should have received a copy of the GNU Lesser General Public License along
 with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from distutils.core import setup
-
-setup(
-   name='pynotewiki',
-   # TODO: Figure out a way to grab the repo revision or something.
-   version='0.1',
-   packages=['pynotewiki'],
-   scripts=['pnw.py'],
-   data_files=[
-      ('/usr/share/pixmaps',['pynotewiki.png']),
-      ('/usr/lib/pynotewiki/parsers',['parsers/*.py']),
-   ]
-)
-
