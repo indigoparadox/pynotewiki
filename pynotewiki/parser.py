@@ -38,9 +38,9 @@ class PyNoteWikiParser:
 
       # Break out the requested page.
       page_match = re.search(
-         '^#--------------------------------------------------\n# ' + \
-         '{}\n\n^page .?{}.? ([{{]?)(.+?)([}}]?) ([0-9]+?)\n\n\n'.format(
-            page_title, page_title
+         '^#--------------------------------------------------\n' + \
+         '# {}\n\n^page {{?{}}}? ([{{]?)(.+?)([}}]?) ([0-9]+?)\n\n\n'.format(
+            re.escape( page_title ), re.escape( page_title )
          ),
          self.contents,
          re.MULTILINE | re.DOTALL
