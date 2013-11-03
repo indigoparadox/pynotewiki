@@ -17,11 +17,16 @@ You should have received a copy of the GNU Lesser General Public License along
 with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+import logging
 from pynotewiki.viewer import PyNoteWikiViewer
 
 def main():
+
+   logging.basicConfig()
+
+   # TODO: Implement command line argument parser.  
+
    wiki_app = PyNoteWikiViewer()
-   pass
 
 if '__main__' == __name__:
    main()

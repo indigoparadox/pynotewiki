@@ -17,7 +17,35 @@ You should have received a copy of the GNU Lesser General Public License along
 with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-class PyNoteWikiParser:
-   
-   pass
+import re
 
+class PyNoteWikiParser:
+
+   contents = None
+
+   def __init__( self, wiki_file ):
+      self.contents = wiki_file.read()
+
+   def get_page( self, page_title ):
+
+      # Break out the requested page.
+      page_match = re.search(
+         '^#--------------------------------------------------\n# {}\n\n^page .?{}.? (.+?) [0-9]+?\n\n\n'.format(
+            page_title, page_title
+         ),
+         self.contents,
+         re.MULTILINE | re.DOTALL
+      )
+
+      return page_match.groups()[0]
+
+   def get_page_html( self, page_title ):
+
+      ''' Return the contents of the requested page formatted in HTML. '''
+
+      page_contents = self.get_page( page_title )
+
+      # TODO: Parse wiki markup to HTML.
+
+      return page_contents
+   

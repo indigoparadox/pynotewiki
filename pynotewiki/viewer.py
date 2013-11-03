@@ -21,6 +21,7 @@ import gtk
 import webkit
 import wikiconfig
 import os
+import logging
 from parser import PyNoteWikiParser
 from wikiconfig import PyNoteWikiConfig
 
@@ -28,8 +29,12 @@ class PyNoteWikiViewer:
    
    window = None
    viewer = None
+   wiki = None
+   logger = None
    
    def __init__( self ):
+
+      self.logger = logging.getLogger( 'pynotewiki.viewer' )
 
       # Create the main window.
       self.window = gtk.Window()
@@ -70,7 +75,6 @@ class PyNoteWikiViewer:
 
    def dialog_open( self, widget ):
 
-      # TODO: Open the dialog in the last used path.
       config = PyNoteWikiConfig()
 
       # Display a file open dialog.
@@ -95,8 +99,18 @@ class PyNoteWikiViewer:
          # Store the last used path for later.
          config.set_value( 'LastDir', os.path.dirname( dialog.get_filename() ) )
 
-         # TODO: Open the notebook file.
-         pass
+         # TODO: Rule out bugs before silencing them.
+         # Open the notebook file.
+         #try:
+         with open( dialog.get_filename(), 'r' ) as wiki_file:
+            self.wiki = PyNoteWikiParser( wiki_file )
+            self.viewer.load_html_string(
+               self.wiki.get_page_html( 'Home' ), 'file:///'
+            )
+         #except:
+         #   self.logger.error(
+         #      'Unable to open notebook {}.'.format( dialog.get_filename() )
+         #   )
 
       dialog.destroy()
 
