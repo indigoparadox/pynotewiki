@@ -35,6 +35,7 @@ class PyNoteWikiViewer:
    logger = None
    pageuri = None
    history = []
+   goingback = False
    
    def __init__( self ):
 
@@ -138,6 +139,7 @@ class PyNoteWikiViewer:
             self.wiki = PyNoteWikiParser( wiki_file )
             self.viewer.open( 'wiki:///Home' )
             self.history = []
+            self.pageuri = None
          #except:
          #   self.logger.error(
          #      'Unable to open notebook {}.'.format( dialog.get_filename() )
@@ -163,7 +165,12 @@ class PyNoteWikiViewer:
          return False
 
       # Set the new page name and add the old one to the history pile.
-      self.history.append( self.pageuri )
+      # TODO: Figure out how to not append backtracked items to the history
+      #       without using a pseudo-global.
+      if not self.goingback and None != self.pageuri:
+         self.history.append( self.pageuri )
+      else:
+         self.goingback = False
       self.pageuri = uri
 
       if None != self.wiki:
@@ -184,7 +191,14 @@ class PyNoteWikiViewer:
          poldec.use()
 
    def on_back( self, widget ):
-      self.viewer.open( self.history.pop() )
+      try:
+         self.goingback = True
+         backstep = self.history.pop()
+         self.viewer.open( backstep )
+      except:
+         # Guess we're not going back after all!
+         self.goingback = False
+         self.logger.error( 'Tried to go back too many times.' )
 
    def on_home( self, widget ):
       self.viewer.open( 'wiki:///Home' )

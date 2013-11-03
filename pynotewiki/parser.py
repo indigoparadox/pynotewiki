@@ -18,6 +18,7 @@ with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import re
+import urllib
 
 class PyNoteWikiParser:
 
@@ -30,7 +31,7 @@ class PyNoteWikiParser:
 
       # Break out the requested page.
       page_match = re.search(
-         '^#--------------------------------------------------\n# {}\n\n^page .?{}.? (.+?) [0-9]+?\n\n\n'.format(
+         '^#--------------------------------------------------\n# {}\n\n^page .?{}.? [{{]?(.+?)[}}] [0-9]+?\n\n\n'.format(
             page_title, page_title
          ),
          self.contents,
@@ -52,7 +53,14 @@ class PyNoteWikiParser:
 
       page_contents = re.sub(
          r'[^\\]\[(.+?[^\\])\]',
-         r'<a href="\1">\1</a>',
+         lambda m: r'<a href="wiki:///' + urllib.quote_plus( m.group( 1 )  ) + \
+            '">' + m.group( 1 ) + '</a>',
+         page_contents
+      )
+
+      page_contents = re.sub(
+         r'\n',
+         r'<br />',
          page_contents
       )
 
