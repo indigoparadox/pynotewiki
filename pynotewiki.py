@@ -18,7 +18,7 @@ with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import logging
-from pynotewiki.viewer import PyNoteWikiViewer
+import pynotewiki.viewer
 
 def main():
 
@@ -26,7 +26,7 @@ def main():
 
    # TODO: Implement command line argument parser.  
 
-   wiki_app = PyNoteWikiViewer()
+   wiki_app = pynotewiki.viewer.PyNoteWikiViewer()
 
 if '__main__' == __name__:
    main()
