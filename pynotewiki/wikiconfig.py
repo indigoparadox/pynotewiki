@@ -75,5 +75,7 @@ class PyNoteWikiConfig:
       
       # Save the altered config to disk immediately.
       with open( WIKI_CONFIG_PATH, 'w' ) as config_file:
-         config_file.write( yaml.dump( self.config ) )
+         config_file.write( yaml.dump(
+            self.config, default_flow_style=False, indent=3
+         ) )
 
