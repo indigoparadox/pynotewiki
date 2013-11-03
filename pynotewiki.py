@@ -22,7 +22,7 @@ from pynotewiki.viewer import PyNoteWikiViewer
 
 def main():
 
-   logging.basicConfig()
+   logging.basicConfig( level=logging.DEBUG )
 
    # TODO: Implement command line argument parser.  
 

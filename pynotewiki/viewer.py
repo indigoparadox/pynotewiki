@@ -34,6 +34,7 @@ class PyNoteWikiViewer:
    wiki = None
    logger = None
    pageuri = None
+   history = []
    
    def __init__( self ):
 
@@ -44,9 +45,9 @@ class PyNoteWikiViewer:
       self.window.set_title( 'PyNoteWiki Viewer' )
       self.window.connect( 'destroy', gtk.main_quit )
 
-      # Add a file menu.
       mb = gtk.MenuBar()
 
+      # Add a file menu.
       filemenu = gtk.Menu()
       filem = gtk.MenuItem( 'File' )
       filem.set_submenu( filemenu )
@@ -60,6 +61,21 @@ class PyNoteWikiViewer:
       filemenu.append( exitm )
 
       mb.append( filem )
+
+      # Add a navigation menu.
+      navmenu = gtk.Menu()
+      navm = gtk.MenuItem( 'Navigation' )
+      navm.set_submenu( navmenu )
+
+      homem = gtk.MenuItem( 'Home' )
+      homem.connect( 'activate', self.on_home )
+      navmenu.append( homem )
+
+      backm = gtk.MenuItem( 'Back' )
+      backm.connect( 'activate', self.on_back )
+      navmenu.append( backm )
+
+      mb.append( navm )
 
       # Add the HTML viewer.
       self.viewer = webkit.WebView()
@@ -120,7 +136,8 @@ class PyNoteWikiViewer:
          #try:
          with open( dialog.get_filename(), 'r' ) as wiki_file:
             self.wiki = PyNoteWikiParser( wiki_file )
-            self.display_html( self.wiki.get_page_html( 'Home' ) )
+            self.viewer.open( 'wiki:///Home' )
+            self.history = []
          #except:
          #   self.logger.error(
          #      'Unable to open notebook {}.'.format( dialog.get_filename() )
@@ -136,18 +153,22 @@ class PyNoteWikiViewer:
          poldec.use()
          return True
 
-      # Allow only wiki pages.
-      # TODO: Determine valid wiki pages present in the wiki from invalid ones.
-      if not uri.startswith( 'wiki:' ):
-         return False
-
       # Store the URI for the coming page and parse it to be usable.
-      self.pageuri = uri
       uri_break = urlparse.urlparse( uri )
       page_name = urllib.unquote_plus( uri_break[2][1:] )
 
+      # Allow only wiki pages.
+      # TODO: Determine valid wiki pages present in the wiki from invalid ones.
+      if not uri.startswith( 'wiki:' ) or '' == page_name:
+         return False
+
+      # Set the new page name and add the old one to the history pile.
+      self.history.append( self.pageuri )
+      self.pageuri = uri
+
       if None != self.wiki:
          # Load and display the wiki page.
+         self.logger.info( 'Loading wiki page "{}"...'.format( page_name ) )
          frame.load_string(
             self.display_html(
                self.wiki.get_page_html( page_name ), True
@@ -161,4 +182,10 @@ class PyNoteWikiViewer:
       else:
          # No wiki, probably a system page. Maybe.
          poldec.use()
+
+   def on_back( self, widget ):
+      self.viewer.open( self.history.pop() )
+
+   def on_home( self, widget ):
+      self.viewer.open( 'wiki:///Home' )
 
