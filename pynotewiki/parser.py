@@ -19,19 +19,24 @@ with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
 import urllib
+import logging
 
 class PyNoteWikiParser:
 
    contents = None
+   logger = None
 
    def __init__( self, wiki_file ):
+
+      self.logger = logging.getLogger( 'pynotewiki.parser' )
+
       self.contents = wiki_file.read()
 
    def get_page( self, page_title ):
 
       # Break out the requested page.
       page_match = re.search(
-         '^#--------------------------------------------------\n# {}\n\n^page .?{}.? [{{]?(.+?)[}}] [0-9]+?\n\n\n'.format(
+         '^#--------------------------------------------------\n# {}\n\n^page .?{}.? ([{{]?)(.+?)([}}]?) [0-9]+?\n\n\n'.format(
             page_title, page_title
          ),
          self.contents,
@@ -39,7 +44,17 @@ class PyNoteWikiParser:
       )
 
       if None != page_match:
-         return page_match.groups()[0]
+         page_body = page_match.groups()[1]
+         if '{' == page_match.groups()[0]:
+            self.logger.debug( 'Escape curly brace found on article body.' )
+         else:
+            # No curly brace present, so do extra parsing to remove escaped
+            # whitespace.
+            page_body = page_body.decode( 'string_escape' )
+            page_body = page_body.replace( '\\ ', ' ' )
+            page_body = page_body.replace( '\\{', '{' )
+            page_body = page_body.replace( '\\}', '}' )
+         return page_body
       else:
          return ''
 
@@ -51,6 +66,7 @@ class PyNoteWikiParser:
 
       # TODO: Parse wiki markup to HTML.
 
+      # [] -> <a>
       page_contents = re.sub(
          r'[^\\]\[(.+?[^\\])\]',
          lambda m: r'<a href="wiki:///' + urllib.quote_plus( m.group( 1 )  ) + \
@@ -58,6 +74,7 @@ class PyNoteWikiParser:
          page_contents
       )
 
+      # Newline -> <br />
       page_contents = re.sub(
          r'\n',
          r'<br />',
