@@ -82,6 +82,8 @@ class PyNoteWikiViewer:
             gtk.STOCK_OPEN, gtk.RESPONSE_OK)
       )
       dialog.set_default_response( gtk.RESPONSE_OK )
+      if None != config.get_value( 'LastDir' ):
+         dialog.set_current_folder( config.get_value( 'LastDir' ) )
 
       nbkfilter = gtk.FileFilter()
       nbkfilter.set_name( 'Notebook Files' )
