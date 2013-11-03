@@ -50,11 +50,30 @@ class PyNoteWikiConfig:
       if None == self.config:
          self.config = {}
 
+   def get_value( self, key ):
+
+      ''' Return the requested config item from the store if present, or None
+      if not. '''
+
+      try:
+         return self.config[key]
+      except:
+         return None
+
    def set_value( self, key, value ):
+
+      ''' Set the given item in the config store and save it to disk. '''
+
+      # Don't do anything if it's already set.
+      try:
+         if config[key] == value:
+            pass
+      except:
+         pass
+
       self.config[key] = value
       
       # Save the altered config to disk immediately.
       with open( WIKI_CONFIG_PATH, 'w' ) as config_file:
          config_file.write( yaml.dump( self.config ) )
-
 
