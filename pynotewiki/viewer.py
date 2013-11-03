@@ -117,11 +117,15 @@ class PyNoteWikiViewer:
       )
       self.display_html( 'Welcome to PyNoteWiki!' )
 
+      viewer_scroller = gtk.ScrolledWindow()
+      viewer_scroller.props.vscrollbar_policy = gtk.POLICY_AUTOMATIC
+      viewer_scroller.add( self.viewer )
+
       # Pack the widgets and show the window.
       vbox = gtk.VBox( False, 2 )
       vbox.pack_start( mb, False, False, 0 )
       vbox.pack_start( toolbar, False, False, 0 )
-      vbox.pack_start( self.viewer, True, True, 0 )
+      vbox.pack_start( viewer_scroller, True, True, 0 )
       self.window.add( vbox )
       # TODO: Try to find pynotewiki.png on the system.
       self.window.set_icon_from_file( '/usr/share/pixmaps/pynotewiki.png' )
