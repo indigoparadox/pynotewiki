@@ -61,7 +61,9 @@ class PyNoteWikiViewer:
 
       # Add the HTML viewer.
       self.viewer = webkit.WebView()
-      self.viewer.connect( 'navigation-requested', self.on_navigate )
+      self.viewer.connect(
+         'navigation-policy-decision-requested', self.on_navigate_decision
+      )
       self.display_html( 'Welcome to PyNoteWiki!' )
 
       # Pack the widgets and show the window.
@@ -75,12 +77,15 @@ class PyNoteWikiViewer:
 
       gtk.main()
 
-   def display_html( self, string_in ):
+   def display_html( self, string_in, return_html=False ):
       
       # TODO: Wrap the string in HTML headers with user-definable CSS from the
       #       config.
 
-      self.viewer.load_html_string( string_in, 'wiki:///' )
+      if return_html:
+         return string_in
+      else:
+         self.viewer.load_html_string( string_in, 'wiki:///' )
 
    def on_open( self, widget ):
 
@@ -121,20 +126,28 @@ class PyNoteWikiViewer:
 
       dialog.destroy()
 
-   def on_navigate( self, view, frame, req, data=None ):
+   def on_navigate_decision( self, view, frame, req, act, poldec ):
       uri = req.get_uri()
 
       # Don't infinitely loop.
       if uri == self.pageuri:
-         return 2
+         poldec.use()
+         return True
 
-      if uri.startswith( 'wiki:/' ):
-         # Allow wiki pages.
-         # TODO: Determine valid wiki pages.
-         print uri
-         self.pageuri = uri
-         self.display_html( self.wiki.get_page_html( uri.split( '/' )[3] ) )
-         return 1
+      # Allow only wiki pages.
+      # TODO: Determine valid wiki pages present in the wiki from invalid ones.
+      if not uri.startswith( 'wiki:' ):
+         return False
 
+      self.pageuri = uri
+      frame.load_string(
+         self.display_html(
+            self.wiki.get_page_html( uri.split( '/' )[3] ), True
+         ),
+         'text/html',
+         'iso-8859-15',
+         uri
+      )
+      poldec.ignore()
       return True
 

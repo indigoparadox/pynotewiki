@@ -36,7 +36,7 @@ class PyNoteWikiParser:
          self.contents,
          re.MULTILINE | re.DOTALL
       )
-      
+
       if None != page_match:
          return page_match.groups()[0]
       else:
