@@ -49,7 +49,7 @@ class PyNoteWikiViewer:
       filem.set_submenu( filemenu )
       
       openm = gtk.MenuItem( 'Open Notebook' )
-      openm.connect( 'activate', self.dialog_open )
+      openm.connect( 'activate', self.on_open )
       filemenu.append( openm )
       
       exitm = gtk.MenuItem( 'Exit' )
@@ -60,7 +60,8 @@ class PyNoteWikiViewer:
 
       # Add the HTML viewer.
       self.viewer = webkit.WebView()
-      self.viewer.load_html_string( 'Welcome to PyNoteWiki!', 'file:///' )
+      self.viewer.connect( 'navigation-requested', self.on_navigate )
+      self.display_html( 'Welcome to PyNoteWiki!' )
 
       # Pack the widgets and show the window.
       vbox = gtk.VBox( False, 2 )
@@ -73,7 +74,14 @@ class PyNoteWikiViewer:
 
       gtk.main()
 
-   def dialog_open( self, widget ):
+   def display_html( self, string_in ):
+      
+      # TODO: Wrap the string in HTML headers with user-definable CSS from the
+      #       config.
+
+      self.viewer.load_html_string( string_in, 'wiki:///' )
+
+   def on_open( self, widget ):
 
       config = PyNoteWikiConfig()
 
@@ -104,13 +112,20 @@ class PyNoteWikiViewer:
          #try:
          with open( dialog.get_filename(), 'r' ) as wiki_file:
             self.wiki = PyNoteWikiParser( wiki_file )
-            self.viewer.load_html_string(
-               self.wiki.get_page_html( 'Home' ), 'file:///'
-            )
+            self.display_html( self.wiki.get_page_html( 'Home' ) )
          #except:
          #   self.logger.error(
          #      'Unable to open notebook {}.'.format( dialog.get_filename() )
          #   )
 
       dialog.destroy()
+
+   def on_navigate( self, view, frame, req, data=None ):
+      uri = req.get_uri()
+      if uri.startswith( 'wiki:/' ):
+         # Allow wiki pages.
+         # TODO: Determine valid wiki pages.
+         print uri.split( '/' )
+         return False
+      return True
 
