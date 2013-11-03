@@ -87,11 +87,7 @@ class PyNoteWikiParser:
       )
 
       # Newline -> <br />
-      page_contents = re.sub(
-         r'\n',
-         r'<br />',
-         page_contents
-      )
+      page_contents = re.sub( r'\n', r'<br />', page_contents )
 
       # #pre -> <pre>
       page_contents = page_contents.replace( '#pre', '<pre>' )
