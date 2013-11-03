@@ -29,6 +29,8 @@ from wikiconfig import PyNoteWikiConfig
 
 DEFAULT_CSS = '.missing { color: red }'
 
+STATUSBAR_CONTEXT_UPDATED = 1
+
 class PyNoteWikiViewer:
    
    window = None
@@ -39,6 +41,7 @@ class PyNoteWikiViewer:
    history = []
    goingback = False
    config = None
+   statusbar = None
    
    def __init__( self ):
 
@@ -121,11 +124,15 @@ class PyNoteWikiViewer:
       viewer_scroller.props.vscrollbar_policy = gtk.POLICY_AUTOMATIC
       viewer_scroller.add( self.viewer )
 
+      # Add a status bar.
+      self.statusbar = gtk.Statusbar()
+
       # Pack the widgets and show the window.
       vbox = gtk.VBox( False, 2 )
       vbox.pack_start( mb, False, False, 0 )
       vbox.pack_start( toolbar, False, False, 0 )
       vbox.pack_start( viewer_scroller, True, True, 0 )
+      vbox.pack_start( self.statusbar, False, False, 0 )
       self.window.add( vbox )
       # TODO: Try to find pynotewiki.png on the system.
       self.window.set_icon_from_file( '/usr/share/pixmaps/pynotewiki.png' )
@@ -233,6 +240,13 @@ class PyNoteWikiViewer:
          'iso-8859-15',
          uri
       )
+
+      # Display the page status.
+      # TODO: Format the updated time for display.
+      page = self.wiki.get_page( page_name )
+      self.statusbar.pop( STATUSBAR_CONTEXT_UPDATED )
+      self.statusbar.push( STATUSBAR_CONTEXT_UPDATED, page.get( 'updated' ) )
+
       poldec.ignore()
       return True
 
