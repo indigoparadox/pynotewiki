@@ -27,6 +27,8 @@ import urllib
 from parser import PyNoteWikiParser
 from wikiconfig import PyNoteWikiConfig
 
+DEFAULT_CSS = '.missing { color: red }'
+
 class PyNoteWikiViewer:
    
    window = None
@@ -133,7 +135,8 @@ class PyNoteWikiViewer:
       #       config.
 
       # TODO: Escape the saved CSS for safety.
-      string_in = '<html><head><style type="text/css">' + \
+      string_in = '<html><head><style type="text/css">' + DEFAULT_CSS + \
+         '</style><style type="text/css">' + \
          self.config.get_value( 'PageCSS' ) + '</style></head><body>' + \
          string_in + '</body></html>'
 
