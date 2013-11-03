@@ -66,11 +66,19 @@ class PyNoteWikiParser:
 
       # TODO: Parse wiki markup to HTML.
 
+      # = * = -> <h*>
+      page_contents = re.sub(
+         r'([=]+)(.+?)([=]+)',
+         lambda m: '<h' + str( len( m.group( 1 ) ) ) + '>' + m.group( 2 ) + \
+            '</h' + str( len( m.group( 1 ) ) ) + '>',
+         page_contents
+      )
+
       # [] -> <a>
       page_contents = re.sub(
          r'[^\\]\[(.+?[^\\])\]',
          lambda m: r'<a href="wiki:///' + urllib.quote_plus( m.group( 1 )  ) + \
-            '">' + m.group( 1 ) + '</a>',
+            r'">' + m.group( 1 ) + r'</a>',
          page_contents
       )
 
