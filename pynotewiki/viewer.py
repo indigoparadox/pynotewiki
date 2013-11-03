@@ -81,6 +81,33 @@ class PyNoteWikiViewer:
 
       mb.append( navm )
 
+      # Add a toolbar.
+      toolbar = gtk.Toolbar()
+
+      homeicon = gtk.Image()
+      homeicon.set_from_file(
+         '/usr/share/icons/gnome/16x16/actions/kfm_home.png'
+      )
+      toolbar.append_item(
+         '',
+         'Home',
+         'Home',
+         homeicon,
+         self.on_home
+      )
+
+      backicon = gtk.Image()
+      backicon.set_from_file(
+         '/usr/share/icons/gnome/16x16/actions/previous.png'
+      )
+      toolbar.append_item(
+         '',
+         'Back',
+         'Back',
+         backicon,
+         self.on_back
+      )
+
       # Add the HTML viewer.
       self.viewer = webkit.WebView()
       self.viewer.connect(
@@ -91,6 +118,7 @@ class PyNoteWikiViewer:
       # Pack the widgets and show the window.
       vbox = gtk.VBox( False, 2 )
       vbox.pack_start( mb, False, False, 0 )
+      vbox.pack_start( toolbar, False, False, 0 )
       vbox.pack_start( self.viewer, True, True, 0 )
       self.window.add( vbox )
       # TODO: Try to find pynotewiki.png on the system.
@@ -173,6 +201,11 @@ class PyNoteWikiViewer:
       if not uri.startswith( 'wiki:' ) or '' == page_name:
          return False
 
+      # Allow allow pages when a wiki is loaded.
+      if None == self.wiki:
+         poldec.ignore()
+         return True
+
       # Set the new page name and add the old one to the history pile.
       # TODO: Figure out how to not append backtracked items to the history
       #       without using a pseudo-global.
@@ -183,22 +216,18 @@ class PyNoteWikiViewer:
          self.goingback = False
       self.pageuri = uri
 
-      if None != self.wiki:
-         # Load and display the wiki page.
-         self.logger.info( 'Loading wiki page "{}"...'.format( page_name ) )
-         frame.load_string(
-            self.display_html(
-               self.wiki.get_page_html( page_name ), True
-            ),
-            'text/html',
-            'iso-8859-15',
-            uri
-         )
-         poldec.ignore()
-         return True
-      else:
-         # No wiki, probably a system page. Maybe.
-         poldec.use()
+      # Load and display the wiki page.
+      self.logger.info( 'Loading wiki page "{}"...'.format( page_name ) )
+      frame.load_string(
+         self.display_html(
+            self.wiki.get_page_html( page_name ), True
+         ),
+         'text/html',
+         'iso-8859-15',
+         uri
+      )
+      poldec.ignore()
+      return True
 
    def on_back( self, widget ):
       try:
