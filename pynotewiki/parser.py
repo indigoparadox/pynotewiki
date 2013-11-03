@@ -67,10 +67,11 @@ class PyNoteWikiParser:
 
       # = * = -> <h*>
       page_contents = re.sub(
-         r'([=]+)(.+?)([=]+)',
+         r'^([=]+)(.+?)([=]+)',
          lambda m: '<h' + str( len( m.group( 1 ) ) ) + '>' + m.group( 2 ) + \
             '</h' + str( len( m.group( 1 ) ) ) + '>',
-         page_contents
+         page_contents,
+         flags=re.MULTILINE
       )
 
       # [] -> <a>
