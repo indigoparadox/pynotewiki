@@ -36,7 +36,8 @@ class PyNoteWikiParser:
 
       # Break out the requested page.
       page_match = re.search(
-         '^#--------------------------------------------------\n# {}\n\n^page .?{}.? ([{{]?)(.+?)([}}]?) [0-9]+?\n\n\n'.format(
+         '^#--------------------------------------------------\n# ' + \
+         '{}\n\n^page .?{}.? ([{{]?)(.+?)([}}]?) [0-9]+?\n\n\n'.format(
             page_title, page_title
          ),
          self.contents,
@@ -88,6 +89,10 @@ class PyNoteWikiParser:
          r'<br />',
          page_contents
       )
+
+      # #pre -> <pre>
+      page_contents = page_contents.replace( '#pre', '<pre>' )
+      page_contents = page_contents.replace( '#unpre', '</pre>' )
 
       return page_contents
    
