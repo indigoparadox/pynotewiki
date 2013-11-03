@@ -90,29 +90,17 @@ class PyNoteWikiViewer:
       # Add a toolbar.
       toolbar = gtk.Toolbar()
 
-      homeicon = gtk.Image()
-      homeicon.set_from_file(
-         '/usr/share/icons/gnome/16x16/actions/kfm_home.png'
-      )
-      toolbar.append_item(
-         '',
-         'Home',
-         'Home',
-         homeicon,
-         self.on_home
-      )
-
-      backicon = gtk.Image()
-      backicon.set_from_file(
-         '/usr/share/icons/gnome/16x16/actions/previous.png'
-      )
-      toolbar.append_item(
-         '',
-         'Back',
-         'Back',
-         backicon,
-         self.on_back
-      )
+      openb = gtk.ToolButton( gtk.STOCK_OPEN )
+      openb.connect( 'clicked', self.on_open )
+      homeb = gtk.ToolButton( gtk.STOCK_HOME )
+      homeb.connect( 'clicked', self.on_home )
+      backb = gtk.ToolButton( gtk.STOCK_GO_BACK )
+      backb.connect( 'clicked', self.on_back )
+   
+      toolbar.insert( openb, 0 )
+      toolbar.insert( gtk.SeparatorToolItem(), 1 )
+      toolbar.insert( homeb, 2 )
+      toolbar.insert( backb, 3 )
 
       # Add the HTML viewer.
       self.viewer = webkit.WebView()
