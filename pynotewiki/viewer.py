@@ -36,10 +36,13 @@ class PyNoteWikiViewer:
    pageuri = None
    history = []
    goingback = False
+   config = None
    
    def __init__( self ):
 
       self.logger = logging.getLogger( 'pynotewiki.viewer' )
+
+      self.config = PyNoteWikiConfig()
 
       # Create the main window.
       self.window = gtk.Window()
@@ -101,14 +104,17 @@ class PyNoteWikiViewer:
       # TODO: Wrap the string in HTML headers with user-definable CSS from the
       #       config.
 
+      # TODO: Escape the saved CSS for safety.
+      string_in = '<html><head><style type="text/css">' + \
+         self.config.get_value( 'PageCSS' ) + '</style></head><body>' + \
+         string_in + '</body></html>'
+
       if return_html:
          return string_in
       else:
          self.viewer.load_html_string( string_in, 'wiki:///' )
 
    def on_open( self, widget ):
-
-      config = PyNoteWikiConfig()
 
       # Display a file open dialog.
       dialog =  gtk.FileChooserDialog(
@@ -119,8 +125,8 @@ class PyNoteWikiViewer:
             gtk.STOCK_OPEN, gtk.RESPONSE_OK)
       )
       dialog.set_default_response( gtk.RESPONSE_OK )
-      if None != config.get_value( 'LastDir' ):
-         dialog.set_current_folder( config.get_value( 'LastDir' ) )
+      if None != self.config.get_value( 'LastDir' ):
+         dialog.set_current_folder( self.config.get_value( 'LastDir' ) )
 
       nbkfilter = gtk.FileFilter()
       nbkfilter.set_name( 'Notebook Files' )
@@ -130,16 +136,19 @@ class PyNoteWikiViewer:
       response = dialog.run()
       if gtk.RESPONSE_OK == response:
          # Store the last used path for later.
-         config.set_value( 'LastDir', os.path.dirname( dialog.get_filename() ) )
+         self.config.set_value(
+            'LastDir', os.path.dirname( dialog.get_filename() )
+         )
 
          # TODO: Rule out bugs before silencing them.
          # Open the notebook file.
          #try:
          with open( dialog.get_filename(), 'r' ) as wiki_file:
             self.wiki = PyNoteWikiParser( wiki_file )
-            self.viewer.open( 'wiki:///Home' )
-            self.history = []
+            self.goingback = False
             self.pageuri = None
+            self.history = []
+            self.viewer.open( 'wiki:///Home' )
          #except:
          #   self.logger.error(
          #      'Unable to open notebook {}.'.format( dialog.get_filename() )
@@ -168,6 +177,7 @@ class PyNoteWikiViewer:
       # TODO: Figure out how to not append backtracked items to the history
       #       without using a pseudo-global.
       if not self.goingback and None != self.pageuri:
+         self.logger.info( 'Adding "{}" to history...'.format( self.pageuri ) )
          self.history.append( self.pageuri )
       else:
          self.goingback = False
