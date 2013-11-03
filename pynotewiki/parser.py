@@ -46,9 +46,7 @@ class PyNoteWikiParser:
 
       if None != page_match:
          page_body = page_match.groups()[1]
-         if '{' == page_match.groups()[0]:
-            self.logger.debug( 'Escape curly brace found on article body.' )
-         else:
+         if '{' != page_match.groups()[0]:
             # No curly brace present, so do extra parsing to remove escaped
             # whitespace.
             page_body = page_body.decode( 'string_escape' )
@@ -78,8 +76,7 @@ class PyNoteWikiParser:
       # [] -> <a>
       page_contents = re.sub(
          r'[^\\]\[(.+?[^\\])\]',
-         lambda m: r'<a href="wiki:///' + urllib.quote_plus( m.group( 1 )  ) + \
-            r'">' + m.group( 1 ) + r'</a>',
+         self.format_link,
          page_contents
       )
 
@@ -95,4 +92,22 @@ class PyNoteWikiParser:
       page_contents = page_contents.replace( '#unpre', '</pre>' )
 
       return page_contents
+
+   def format_link( self, page_name ):
+      
+      # Get the page name as a string.
+      try:
+         page_name = page_name.group( 1 )
+      except:
+         # Must've been a string to start.
+         pass
+
+      link_classes = []
+      
+      # See if the page name exists.
+      if '' == self.get_page( page_name ):
+         link_classes.append( 'missing' )
+
+      return r'<a class="' + ' '.join( link_classes ) + r'" href="wiki:///' + \
+         urllib.quote_plus( page_name  ) + r'">' + page_name + r'</a>'
    
