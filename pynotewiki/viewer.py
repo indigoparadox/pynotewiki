@@ -19,7 +19,10 @@ with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 
 import gtk
 import webkit
+import wikiconfig
+import os
 from parser import PyNoteWikiParser
+from wikiconfig import PyNoteWikiConfig
 
 class PyNoteWikiViewer:
    
@@ -67,7 +70,31 @@ class PyNoteWikiViewer:
 
    def dialog_open( self, widget ):
 
-      # TODO: Display a file open dialog.
+      # TODO: Open the dialog in the last used path.
+      config = PyNoteWikiConfig()
 
-      print 'Not implemented.'
+      # Display a file open dialog.
+      dialog =  gtk.FileChooserDialog(
+         'Open Notebook...',
+         None,
+         gtk.FILE_CHOOSER_ACTION_OPEN,
+         (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+            gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+      )
+      dialog.set_default_response( gtk.RESPONSE_OK )
+
+      nbkfilter = gtk.FileFilter()
+      nbkfilter.set_name( 'Notebook Files' )
+      nbkfilter.add_pattern( '*.nbk' )
+      dialog.add_filter( nbkfilter )
+
+      response = dialog.run()
+      if gtk.RESPONSE_OK == response:
+         # Store the last used path for later.
+         config.set_value( 'LastDir', os.path.dirname( dialog.get_filename() ) )
+
+         # TODO: Open the notebook file.
+         pass
+
+      dialog.destroy()
 
