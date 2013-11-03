@@ -36,8 +36,11 @@ class PyNoteWikiParser:
          self.contents,
          re.MULTILINE | re.DOTALL
       )
-
-      return page_match.groups()[0]
+      
+      if None != page_match:
+         return page_match.groups()[0]
+      else:
+         return ''
 
    def get_page_html( self, page_title ):
 
@@ -46,6 +49,12 @@ class PyNoteWikiParser:
       page_contents = self.get_page( page_title )
 
       # TODO: Parse wiki markup to HTML.
+
+      page_contents = re.sub(
+         r'[^\\]\[(.+?[^\\])\]',
+         r'<a href="\1">\1</a>',
+         page_contents
+      )
 
       return page_contents
    
