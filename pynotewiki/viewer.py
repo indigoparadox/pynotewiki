@@ -173,16 +173,31 @@ class PyNoteWikiViewer:
 
          # TODO: Rule out bugs before silencing them.
          # Open the notebook file.
-         #try:
-         self.wiki = PyNoteWikiParser( dialog.get_filename() )
-         self.goingback = False
-         self.pageuri = None
-         self.history = []
-         self.viewer.open( 'wiki:///Home' )
-         #except:
-         #   self.logger.error(
-         #      'Unable to open wiki {}.'.format( dialog.get_filename() )
-         #   )
+         try:
+            self.wiki = PyNoteWikiParser( dialog.get_filename() )
+            self.goingback = False
+            self.pageuri = None
+            self.history = []
+            self.viewer.open( 'wiki:///Home' )
+         except Exception, e:
+            
+            md = gtk.MessageDialog(
+               self.window,
+               gtk.DIALOG_DESTROY_WITH_PARENT,
+               gtk.MESSAGE_ERROR,
+               gtk.BUTTONS_CLOSE,
+               'Unable to open wiki {}: {}'.format(
+                  dialog.get_filename(), e.message
+               )
+            )
+            md.run()
+            md.destroy()
+
+            self.logger.error(
+               'Unable to open wiki {}: {}'.format(
+                  dialog.get_filename(), e.message
+               )
+            )
 
       dialog.destroy()
 
