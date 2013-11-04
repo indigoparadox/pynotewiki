@@ -17,7 +17,6 @@ You should have received a copy of the GNU Lesser General Public License along
 with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import re
 import logging
 from yapsy.PluginManager import PluginManager
 
@@ -32,14 +31,14 @@ class PyNoteWikiParser:
       self.logger = logging.getLogger( 'pynotewiki.parser' )
 
       # Load the parser plugins and find one that can open the requested wiki.
-      self.plugins = PluginManager()
-      self.plugins.setPluginPlaces(
+      plugins = PluginManager()
+      plugins.setPluginPlaces(
          # TODO: Look in home directory, as well.
          ['./parsers','/usr/lib/pynotewiki/parsers']
       )
-      self.plugins.collectPlugins()
-      for plugin in self.plugins.getAllPlugins():
-         self.logger.info( 'Found parser "{}".'.format( plugin.name ) )
+      plugins.collectPlugins()
+      for plugin in plugins.getAllPlugins():
+         self.logger.debug( 'Found parser "{}".'.format( plugin.name ) )
          if plugin.plugin_object.sniff_wiki( wiki_path ):
             self.logger.info( 'Parser "{}" can read "{}".'.format(
                plugin.name, wiki_path
@@ -63,5 +62,22 @@ class PyNoteWikiParser:
       return page
 
    def get_page_html( self, page_title ):
-      return self._parser.get_page_html( page_title )
+
+      page = self.get_page( page_title )
+
+      # Load the formatter plugins and find one that can open the requested
+      # page.
+      plugins = PluginManager()
+      plugins.setPluginPlaces(
+         # TODO: Look in home directory, as well.
+         ['./formatters','/usr/lib/pynotewiki/formatters']
+      )
+      plugins.collectPlugins()
+      for plugin in plugins.getAllPlugins():
+         self.logger.debug( 'Found formatter "{}".'.format( plugin.name ) )
+         if plugin.plugin_object.sniff_page( page.get( 'body' ) ):
+            self.logger.info( 'Formatter "{}" can read "{}".'.format(
+               plugin.name, page_title
+            ) )
+            return plugin.plugin_object.get_html( page.get( 'body' ), self )
 
