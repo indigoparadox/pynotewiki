@@ -1,0 +1,4 @@
+[Core]
+Name = Mercurial Wiki Parser
+Module = hg
+

@@ -33,13 +33,21 @@ sys.argv = filtered_args
 
 # Assemble the parsers and pixmaps.
 
+# TODO: Compile the parsers into *.pycs.
+
 data_files = [
    ('/usr/share/pixmaps',['pynotewiki.png']),
    ('/usr/lib/pynotewiki/parsers',['parsers/nbk.py']),
+   ('/usr/lib/pynotewiki/parsers',['parsers/nbk.yapsy-plugin']),
 ]
 
 if with_hg:
    data_files.append( ('/usr/lib/pynotewiki/parsers',['parsers/hg.py']) )
+   data_files.append(
+      ('/usr/lib/pynotewiki/parsers',['parsers/hg.yapsy-plugin'])
+   )
+
+# TODO: Make an XDG desktop definition.
 
 setup(
    name='pynotewiki',

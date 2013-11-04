@@ -174,15 +174,14 @@ class PyNoteWikiViewer:
          # TODO: Rule out bugs before silencing them.
          # Open the notebook file.
          #try:
-         with open( dialog.get_filename(), 'r' ) as wiki_file:
-            self.wiki = PyNoteWikiParser( wiki_file )
-            self.goingback = False
-            self.pageuri = None
-            self.history = []
-            self.viewer.open( 'wiki:///Home' )
+         self.wiki = PyNoteWikiParser( dialog.get_filename() )
+         self.goingback = False
+         self.pageuri = None
+         self.history = []
+         self.viewer.open( 'wiki:///Home' )
          #except:
          #   self.logger.error(
-         #      'Unable to open notebook {}.'.format( dialog.get_filename() )
+         #      'Unable to open wiki {}.'.format( dialog.get_filename() )
          #   )
 
       dialog.destroy()
