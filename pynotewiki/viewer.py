@@ -26,6 +26,7 @@ import urlparse
 import urllib
 from parser import PyNoteWikiParser
 from wikiconfig import PyNoteWikiConfig
+from editor import PyNoteWikiEditor
 
 DEFAULT_CSS = '.missing { color: red }'
 
@@ -36,6 +37,7 @@ class PyNoteWikiViewer:
    window = None
    viewer = None
    wiki = None
+   wiki_path = None
    logger = None
    pageuri = None
    history = []
@@ -45,9 +47,9 @@ class PyNoteWikiViewer:
    visitingsame = False
 
    @classmethod
-   def from_wiki_path( cls, wiki_path ):
+   def from_wiki_path( cls, wiki_path, page_uri='wiki:///Home' ):
       new_viewer = cls()
-      new_viewer.load_wiki( wiki_path )
+      new_viewer.load_wiki( wiki_path, page_uri )
       return new_viewer
    
    def __init__( self ):
@@ -102,11 +104,15 @@ class PyNoteWikiViewer:
       homeb.connect( 'clicked', self.on_home )
       backb = gtk.ToolButton( gtk.STOCK_GO_BACK )
       backb.connect( 'clicked', self.on_back )
+      editb = gtk.ToolButton( gtk.STOCK_EDIT )
+      editb.connect( 'clicked', self.on_edit )
    
       toolbar.insert( openb, 0 )
       toolbar.insert( gtk.SeparatorToolItem(), 1 )
       toolbar.insert( homeb, 2 )
       toolbar.insert( backb, 3 )
+      toolbar.insert( gtk.SeparatorToolItem(), 4 )
+      toolbar.insert( editb, 5 )
 
       # Add the HTML viewer.
       self.viewer = webkit.WebView()
@@ -136,16 +142,15 @@ class PyNoteWikiViewer:
       gtk.main()
 
    def load_wiki( self, wiki_path, page_uri='wiki:///Home' ):
-      # TODO: Rule out bugs before silencing them.
       # Open the notebook file.
       try:
          self.wiki = PyNoteWikiParser( wiki_path )
+         self.wiki_path = wiki_path
          self.goingback = False
          self.pageuri = None
          self.history = []
          self.viewer.open( page_uri )
       except Exception, e:
-         
          md = gtk.MessageDialog(
             self.window,
             gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -288,4 +293,8 @@ class PyNoteWikiViewer:
 
    def on_home( self, widget ):
       self.viewer.open( 'wiki:///Home' )
+
+   def on_edit( self, widget ):
+      self.window.destroy()
+      PyNoteWikiEditor.from_wiki_path( self.wiki_path, self.pageuri )
 
