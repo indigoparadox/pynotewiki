@@ -30,6 +30,7 @@ class PyNoteWikiEditor:
    wiki = None
    wiki_path = None
    logger = None
+   page_uri = None
 
    def __init__( self, wiki_path, page_uri ):
 
@@ -53,6 +54,17 @@ class PyNoteWikiEditor:
 
       mb.append( filem )
 
+      # Create the toolbar.
+      toolbar = gtk.Toolbar()
+
+      saveb = gtk.ToolButton( gtk.STOCK_SAVE )
+      saveb.connect( 'clicked', self.on_save )
+      cancelb = gtk.ToolButton( gtk.STOCK_NO )
+      cancelb.connect( 'clicked', self.on_view )
+
+      toolbar.insert( saveb, 0 )
+      toolbar.insert( cancelb, 1 )
+
       # Create the editor.
       self.editor = gtk.TextView()
       self.editor.set_editable( True )
@@ -63,7 +75,7 @@ class PyNoteWikiEditor:
       # Pack the widgets and show the window.
       vbox = gtk.VBox( False, 2 )
       vbox.pack_start( mb, False, False, 0 )
-      #vbox.pack_start( toolbar, False, False, 0 )
+      vbox.pack_start( toolbar, False, False, 0 )
       vbox.pack_start( editor_scroller, True, True, 0 )
       #vbox.pack_start( self.statusbar, False, False, 0 )
       self.window.add( vbox )
@@ -80,6 +92,7 @@ class PyNoteWikiEditor:
       try:
          self.wiki = PyNoteWikiParser( wiki_path )
          self.wiki_path = wiki_path
+         self.page_uri = page_uri
 
          # TODO: Make this a common function somewhere (maybe in the parser?).
          uri_break = urlparse.urlparse( page_uri )
@@ -104,6 +117,11 @@ class PyNoteWikiEditor:
             'Unable to open wiki {}: {}'.format( wiki_path, e.message )
          )
 
+   def on_save( self, widget ):
+      pass
+
    def on_view( self, widget ):
-      PyNoteWikiViewer( self.wiki_path, self.pageuri )
+      from viewer import PyNoteWikiViewer
+      self.window.destroy()
+      PyNoteWikiViewer( self.wiki_path, self.page_uri )
 

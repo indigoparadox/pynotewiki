@@ -26,7 +26,6 @@ import urlparse
 import urllib
 from parser import PyNoteWikiParser
 from wikiconfig import PyNoteWikiConfig
-from editor import PyNoteWikiEditor
 
 DEFAULT_CSS = '.missing { color: red }'
 DEFAULT_PAGE_URI = 'wiki:///Home'
@@ -40,7 +39,7 @@ class PyNoteWikiViewer:
    wiki = None
    wiki_path = None
    logger = None
-   pageuri = None
+   page_uri = None
    history = []
    goingback = False
    config = None
@@ -145,7 +144,7 @@ class PyNoteWikiViewer:
          self.wiki = PyNoteWikiParser( wiki_path )
          self.wiki_path = wiki_path
          self.goingback = False
-         self.pageuri = None
+         self.page_uri = None
          self.history = []
          if None != page_uri:
             self.viewer.open( page_uri )
@@ -230,7 +229,7 @@ class PyNoteWikiViewer:
 
       # Don't infinitely loop, but don't allow going to the same page more 
       # than once because webkit doesn't seem to like that.
-      if uri == self.pageuri:
+      if uri == self.page_uri:
          if not self.visitingsame:
             poldec.use()
             self.visitingsame = True
@@ -258,12 +257,12 @@ class PyNoteWikiViewer:
       # Set the new page name and add the old one to the history pile.
       # TODO: Figure out how to not append backtracked items to the history
       #       without using a pseudo-global.
-      if not self.goingback and None != self.pageuri:
-         self.logger.info( 'Adding "{}" to history...'.format( self.pageuri ) )
-         self.history.append( self.pageuri )
+      if not self.goingback and None != self.page_uri:
+         self.logger.info( 'Adding "{}" to history...'.format( self.page_uri ) )
+         self.history.append( self.page_uri )
       else:
          self.goingback = False
-      self.pageuri = uri
+      self.page_uri = uri
 
       # Load and display the wiki page.
       self.logger.info( 'Loading wiki page "{}"...'.format( page_name ) )
@@ -299,6 +298,7 @@ class PyNoteWikiViewer:
       self.viewer.open( DEFAULT_PAGE_URI )
 
    def on_edit( self, widget ):
+      from editor import PyNoteWikiEditor
       self.window.destroy()
-      PyNoteWikiEditor( self.wiki_path, self.pageuri )
+      PyNoteWikiEditor( self.wiki_path, self.page_uri )
 
