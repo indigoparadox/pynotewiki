@@ -52,7 +52,7 @@ class PyNoteWikiParser:
 
    def get_page( self, page_title ):
 
-      page = { 'body': '', 'updated': 0 }
+      page = { 'body': '', 'updated': 0, 'parser': None }
       
       # Fill in the defaults with data from the parser plugin.
       new_page = self._parser.get_page( page_title )
@@ -75,7 +75,7 @@ class PyNoteWikiParser:
       plugins.collectPlugins()
       for plugin in plugins.getAllPlugins():
          self.logger.debug( 'Found formatter "{}".'.format( plugin.name ) )
-         if plugin.plugin_object.sniff_page( page.get( 'body' ) ):
+         if plugin.plugin_object.sniff_page( page ):
             self.logger.info( 'Formatter "{}" can read "{}".'.format(
                plugin.name, page_title
             ) )

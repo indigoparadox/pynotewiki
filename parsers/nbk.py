@@ -60,7 +60,10 @@ class NBKParser( IPlugin ):
             page_body = page.get( 'body' ).replace( '\\}', '}' )
             page.update( { 'body': page_body } )
 
-         page.update( { 'updated': page_match.groups()[3] } )
+         page.update( {
+            'parser': 'nbk',
+            'updated': page_match.groups()[3],
+         } )
 
       return page
 

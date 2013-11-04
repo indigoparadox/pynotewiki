@@ -27,9 +27,10 @@ class NotebookFormatter( IPlugin ):
    
    _parser = None
 
-   def sniff_page( self, page_contents ):
-      # TODO
-      return True
+   def sniff_page( self, page ):
+      if 'nbk' == page.get( 'parser' ):
+         return True
+      return False
 
    def get_html( self, page_contents, parser ):
 
