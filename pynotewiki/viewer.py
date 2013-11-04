@@ -43,6 +43,12 @@ class PyNoteWikiViewer:
    config = None
    statusbar = None
    visitingsame = False
+
+   @classmethod
+   def from_wiki_path( cls, wiki_path ):
+      new_viewer = cls()
+      new_viewer.load_wiki( wiki_path )
+      return new_viewer
    
    def __init__( self ):
 
@@ -129,6 +135,31 @@ class PyNoteWikiViewer:
 
       gtk.main()
 
+   def load_wiki( self, wiki_path, page_uri='wiki:///Home' ):
+      # TODO: Rule out bugs before silencing them.
+      # Open the notebook file.
+      try:
+         self.wiki = PyNoteWikiParser( wiki_path )
+         self.goingback = False
+         self.pageuri = None
+         self.history = []
+         self.viewer.open( page_uri )
+      except Exception, e:
+         
+         md = gtk.MessageDialog(
+            self.window,
+            gtk.DIALOG_DESTROY_WITH_PARENT,
+            gtk.MESSAGE_ERROR,
+            gtk.BUTTONS_CLOSE,
+            'Unable to open wiki {}: {}'.format( wiki_path, e.message )
+         )
+         md.run()
+         md.destroy()
+
+         self.logger.error(
+            'Unable to open wiki {}: {}'.format( wiki_path, e.message )
+         )
+
    def display_html( self, string_in, return_html=False ):
       
       # TODO: Wrap the string in HTML headers with user-definable CSS from the
@@ -177,33 +208,7 @@ class PyNoteWikiViewer:
             'LastDir', os.path.dirname( dialog.get_filename() )
          )
 
-         # TODO: Rule out bugs before silencing them.
-         # Open the notebook file.
-         try:
-            self.wiki = PyNoteWikiParser( dialog.get_filename() )
-            self.goingback = False
-            self.pageuri = None
-            self.history = []
-            self.viewer.open( 'wiki:///Home' )
-         except Exception, e:
-            
-            md = gtk.MessageDialog(
-               self.window,
-               gtk.DIALOG_DESTROY_WITH_PARENT,
-               gtk.MESSAGE_ERROR,
-               gtk.BUTTONS_CLOSE,
-               'Unable to open wiki {}: {}'.format(
-                  dialog.get_filename(), e.message
-               )
-            )
-            md.run()
-            md.destroy()
-
-            self.logger.error(
-               'Unable to open wiki {}: {}'.format(
-                  dialog.get_filename(), e.message
-               )
-            )
+         self.load_wiki( dialog.get_filename() )
 
       dialog.destroy()
 
