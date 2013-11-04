@@ -18,7 +18,6 @@ with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import re
-import urllib
 from yapsy.IPlugin import IPlugin
 
 class NBKParser( IPlugin ):
@@ -64,55 +63,4 @@ class NBKParser( IPlugin ):
          page.update( { 'updated': page_match.groups()[3] } )
 
       return page
-
-   def get_page_html( self, page_title ):
-
-      ''' Return the contents of the requested page formatted in HTML. '''
-
-      page_contents = self.get_page( page_title ).get( 'body' )
-
-      # TODO: Parse wiki markup to HTML.
-
-      # = * = -> <h*>
-      page_contents = re.sub(
-         r'^([=]+)(.+?)([=]+)',
-         lambda m: '<h' + str( len( m.group( 1 ) ) ) + '>' + m.group( 2 ) + \
-            '</h' + str( len( m.group( 1 ) ) ) + '>',
-         page_contents,
-         flags=re.MULTILINE
-      )
-
-      # [] -> <a>
-      page_contents = re.sub(
-         r'[^\\]\[(.+?[^\\])\]',
-         self.format_link,
-         page_contents
-      )
-
-      # Newline -> <br />
-      page_contents = re.sub( r'\n', r'<br />', page_contents )
-
-      # #pre -> <pre>
-      page_contents = page_contents.replace( '#pre', '<pre>' )
-      page_contents = page_contents.replace( '#unpre', '</pre>' )
-
-      return page_contents
-
-   def format_link( self, page_title ):
-      
-      # Get the page name as a string.
-      try:
-         page_title = page_title.group( 1 )
-      except:
-         # Must've been a string to start.
-         pass
-
-      link_classes = []
-      
-      # See if the page name exists.
-      if '' == self.get_page( page_title ):
-         link_classes.append( 'missing' )
-
-      return r'<a class="' + ' '.join( link_classes ) + r'" href="wiki:///' + \
-         urllib.quote_plus( page_title  ) + r'">' + page_title + r'</a>'
 
