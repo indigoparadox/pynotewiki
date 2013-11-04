@@ -18,20 +18,22 @@ with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import gtk
+import logging
+import urllib
+import urlparse
+from parser import PyNoteWikiParser
 
 class PyNoteWikiEditor:
 
    window = None
    editor = None
    wiki = None
+   wiki_path = None
+   logger = None
 
-   @classmethod
-   def from_wiki_path( cls, wiki_path, page_uri='wiki:///Home' ):
-      new_editor = cls()
-      new_editor.load_wiki( wiki_path, page_uri )
-      return new_editor
+   def __init__( self, wiki_path, page_uri ):
 
-   def __init__( self ):
+      self.logger = logging.getLogger( 'pynotewiki.editor' )
 
       # Create the main window.
       self.window = gtk.Window()
@@ -53,7 +55,7 @@ class PyNoteWikiEditor:
 
       # Create the editor.
       self.editor = gtk.TextView()
-
+      self.editor.set_editable( True )
       editor_scroller = gtk.ScrolledWindow()
       editor_scroller.props.vscrollbar_policy = gtk.POLICY_AUTOMATIC
       editor_scroller.add( self.editor )
@@ -69,8 +71,39 @@ class PyNoteWikiEditor:
       self.window.set_icon_from_file( '/usr/share/pixmaps/pynotewiki.png' )
       self.window.show_all()
 
+      self.load_wiki( wiki_path, page_uri )
+
       gtk.main()
 
-   def load_wiki( self, wiki_path ):
-      pass
+   def load_wiki( self, wiki_path, page_uri ):
+      # Open the notebook file.
+      try:
+         self.wiki = PyNoteWikiParser( wiki_path )
+         self.wiki_path = wiki_path
+
+         # TODO: Make this a common function somewhere (maybe in the parser?).
+         uri_break = urlparse.urlparse( page_uri )
+         page_name = urllib.unquote_plus( uri_break[2][1:] )
+
+         # Load the page source into the editor.
+         buf = self.editor.get_buffer()
+         buf.set_text( self.wiki.get_page( page_name ).get( 'body' ) )
+
+      except Exception, e:
+         md = gtk.MessageDialog(
+            self.window,
+            gtk.DIALOG_DESTROY_WITH_PARENT,
+            gtk.MESSAGE_ERROR,
+            gtk.BUTTONS_CLOSE,
+            'Unable to open wiki {}: {}'.format( wiki_path, e.message )
+         )
+         md.run()
+         md.destroy()
+
+         self.logger.error(
+            'Unable to open wiki {}: {}'.format( wiki_path, e.message )
+         )
+
+   def on_view( self, widget ):
+      PyNoteWikiViewer( self.wiki_path, self.pageuri )
 

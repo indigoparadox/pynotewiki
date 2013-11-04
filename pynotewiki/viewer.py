@@ -29,6 +29,7 @@ from wikiconfig import PyNoteWikiConfig
 from editor import PyNoteWikiEditor
 
 DEFAULT_CSS = '.missing { color: red }'
+DEFAULT_PAGE_URI = 'wiki:///Home'
 
 STATUSBAR_CONTEXT_UPDATED = 1
 
@@ -46,13 +47,7 @@ class PyNoteWikiViewer:
    statusbar = None
    visitingsame = False
 
-   @classmethod
-   def from_wiki_path( cls, wiki_path, page_uri='wiki:///Home' ):
-      new_viewer = cls()
-      new_viewer.load_wiki( wiki_path, page_uri )
-      return new_viewer
-   
-   def __init__( self ):
+   def __init__( self, wiki_path=None, page_uri=None ):
 
       self.logger = logging.getLogger( 'pynotewiki.viewer' )
 
@@ -139,9 +134,12 @@ class PyNoteWikiViewer:
       self.window.set_icon_from_file( '/usr/share/pixmaps/pynotewiki.png' )
       self.window.show_all()
 
+      if None != wiki_path:
+         self.load_wiki( wiki_path, page_uri )
+
       gtk.main()
 
-   def load_wiki( self, wiki_path, page_uri='wiki:///Home' ):
+   def load_wiki( self, wiki_path, page_uri=None ):
       # Open the notebook file.
       try:
          self.wiki = PyNoteWikiParser( wiki_path )
@@ -149,7 +147,10 @@ class PyNoteWikiViewer:
          self.goingback = False
          self.pageuri = None
          self.history = []
-         self.viewer.open( page_uri )
+         if None != page_uri:
+            self.viewer.open( page_uri )
+         else:
+            self.viewer.open( DEFAULT_PAGE_URI )
       except Exception, e:
          md = gtk.MessageDialog(
             self.window,
@@ -295,9 +296,9 @@ class PyNoteWikiViewer:
          self.logger.error( 'Tried to go back too many times.' )
 
    def on_home( self, widget ):
-      self.viewer.open( 'wiki:///Home' )
+      self.viewer.open( DEFAULT_PAGE_URI )
 
    def on_edit( self, widget ):
       self.window.destroy()
-      PyNoteWikiEditor.from_wiki_path( self.wiki_path, self.pageuri )
+      PyNoteWikiEditor( self.wiki_path, self.pageuri )
 
