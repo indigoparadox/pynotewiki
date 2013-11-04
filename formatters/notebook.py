@@ -28,6 +28,7 @@ class NotebookFormatter( IPlugin ):
    _parser = None
 
    def sniff_page( self, page ):
+      # TODO: Use a more thorough test.
       if 'nbk' == page.get( 'parser' ):
          return True
       return False
