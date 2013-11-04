@@ -26,6 +26,7 @@ class HGParser( IPlugin ):
    name = 'Mercurial Wiki Parser'
 
    _wiki_path = None
+   _wiki_repo = None
 
    def sniff_wiki( self, wiki_path ):
       wiki_dir_path = os.path.dirname( wiki_path )
@@ -42,5 +43,18 @@ class HGParser( IPlugin ):
       pass
    
    def get_page( self, page_title ):
-      pass
 
+      # Try to open the markdown file in the repo root.
+      page_path = os.path.join( self._wiki_path, '{}.md'.format( page_title ) )
+      page = {}
+      with open( page_path, 'r' ) as page_file:
+         page_contents = page_file.read()
+         page.update( { 'body': page_contents } )
+
+      page.update( {
+         'parser': 'hg',
+         # TODO: Implement updated time.
+         'updated': str( 0 ),
+      } )
+
+      return page
