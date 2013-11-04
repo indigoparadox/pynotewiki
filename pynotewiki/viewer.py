@@ -220,6 +220,13 @@ class PyNoteWikiViewer:
    def on_navigate_decision( self, view, frame, req, act, poldec ):
       uri = req.get_uri()
 
+      # Aggressively weed out non-local pages for now so that we can control
+      # integration with CSS, etc. Maybe later we can open them in a proper
+      # browser window.
+      if not uri.startswith( 'wiki:' ):
+         poldec.ignore()
+         return True
+
       # Don't infinitely loop, but don't allow going to the same page more 
       # than once because webkit doesn't seem to like that.
       if uri == self.pageuri:
@@ -241,10 +248,6 @@ class PyNoteWikiViewer:
       # TODO: Determine valid wiki pages present in the wiki from invalid ones.
       if '' == page_name:
          return False
-
-      if not uri.startswith( 'wiki:' ):
-         poldec.ignore()
-         return True
 
       # Allow allow pages when a wiki is loaded.
       if None == self.wiki:
