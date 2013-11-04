@@ -17,30 +17,16 @@ You should have received a copy of the GNU Lesser General Public License along
 with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import os
-from mercurial import ui, hg
+import markdown
 from yapsy.IPlugin import IPlugin
 
-class HGParser( IPlugin ):
-	
-   name = 'Mercurial Wiki Parser'
+class MarkdownFormatter( IPlugin ):
 
-   _wiki_path = None
+   name = "Markdown Text Formatter"
 
-   def sniff_wiki( self, wiki_path ):
-      wiki_dir_path = os.path.dirname( wiki_path )
-      try:
-         # Try to open the containing directory as an hg repo.
-         wiki_repo = hg.repository( ui.ui(), wiki_dir_path )
-         self._wiki_path = wiki_dir_path
-         self._wiki_repo = wiki_repo
-         return True
-      except:
-         return False
-   
-   def load_wiki( self, wiki_path ):
-      pass
-   
-   def get_page( self, page_title ):
-      pass
+   def sniff_page( self, page ):
+      return False
+
+   def get_html( self, page_contents, parser ):
+      return markdown.markdown( page_contents )
 

@@ -27,9 +27,10 @@ class NBKParser( IPlugin ):
 
    def sniff_wiki( self, wiki_path ):
       with open( wiki_path, 'r' ) as wiki_file:
-         print wiki_path
-         # TODO: Make sure this is a valid notebook file.
-         return True
+         first_line = wiki_file.readline()
+         if first_line.startswith( '# Notebook Database File' ):
+            return True
+      return False
 
    def load_wiki( self, wiki_path ):
       with open( wiki_path, 'r' ) as wiki_file:

@@ -159,6 +159,12 @@ class PyNoteWikiViewer:
       if None != self.config.get_value( 'LastDir' ):
          dialog.set_current_folder( self.config.get_value( 'LastDir' ) )
 
+      # TODO: Poll the parser plugins and get the list of valid extensions.
+      nbkfilter = gtk.FileFilter()
+      nbkfilter.set_name( 'MMD Wikis' )
+      nbkfilter.add_pattern( 'Home.md' )
+      dialog.add_filter( nbkfilter )
+
       nbkfilter = gtk.FileFilter()
       nbkfilter.set_name( 'Notebook Files' )
       nbkfilter.add_pattern( '*.nbk' )
