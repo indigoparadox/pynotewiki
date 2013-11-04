@@ -25,6 +25,9 @@ class MarkdownFormatter( IPlugin ):
    name = "Markdown Text Formatter"
 
    def sniff_page( self, page ):
+      # TODO: Use a more thorough test.
+      if 'hg' == page.get( 'parser' ):
+         return True
       return False
 
    def get_html( self, page_contents, parser ):
