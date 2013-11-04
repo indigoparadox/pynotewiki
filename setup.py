@@ -46,6 +46,12 @@ if with_hg:
    data_files.append(
       ('/usr/lib/pynotewiki/parsers',['parsers/hg.yapsy-plugin'])
    )
+   data_files.append(
+      ('/usr/lib/pynotewiki/formatters',['formatters/markdown.py'])
+   )
+   data_files.append(
+      ('/usr/lib/pynotewiki/formatters',['formatters/markdown.yapsy-plugin'])
+   )
 
 # TODO: Make an XDG desktop definition.
 

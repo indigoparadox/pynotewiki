@@ -1,0 +1,10 @@
+
+= Requirements =
+
+* dev-python/markdown
+* dev-python/pygtk
+* dev-python/pywebkitgtk
+* dev-python/yapsy
+* dev-vcs/mercurial
+* x11-themes/gnome-icon-theme
+

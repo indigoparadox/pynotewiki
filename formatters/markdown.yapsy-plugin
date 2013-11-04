@@ -1,0 +1,4 @@
+[Core]
+Name = Markdown Text Formatter
+Module = markdown
+
