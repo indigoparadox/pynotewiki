@@ -1,0 +1,4 @@
+[Core]
+Name = Notebook Wiki Parser
+Module = nbk
+

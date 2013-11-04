@@ -17,3 +17,15 @@ You should have received a copy of the GNU Lesser General Public License along
 with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from yapsy.IPlugin import IPlugin
+
+class HGParser( IPlugin ):
+	
+	name = 'Mercurial Wiki Parser'
+
+	def sniff_wiki( self, wiki_path ):
+		return False
+
+	def load_wiki( self, wiki_path ):
+		pass
+

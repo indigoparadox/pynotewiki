@@ -18,98 +18,50 @@ with PyNoteWiki.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import re
-import urllib
 import logging
+from yapsy.PluginManager import PluginManager
 
 class PyNoteWikiParser:
 
-   contents = None
    logger = None
+   
+   _parser = None
 
-   def __init__( self, wiki_file ):
+   def __init__( self, wiki_path ):
 
       self.logger = logging.getLogger( 'pynotewiki.parser' )
 
-      self.contents = wiki_file.read()
+      # Load the parser plugins and find one that can open the requested wiki.
+      self.plugins = PluginManager()
+      self.plugins.setPluginPlaces(
+         # TODO: Look in home directory, as well.
+         ['./parsers','/usr/lib/pynotewiki/parsers']
+      )
+      self.plugins.collectPlugins()
+      for plugin in self.plugins.getAllPlugins():
+         self.logger.info( 'Found parser "{}".'.format( plugin.name ) )
+         if plugin.plugin_object.sniff_wiki( wiki_path ):
+            self.logger.info( 'Parser "{}" can read "{}".'.format(
+               plugin.name, wiki_path
+            ) )
+            self._parser = plugin.plugin_object
+            self._parser.load_wiki( wiki_path )
+            break
+
+      if None == self._parser:
+         raise Exception( 'No valid parser found.' )
 
    def get_page( self, page_title ):
 
       page = { 'body': '', 'updated': 0 }
-
-      # Break out the requested page.
-      page_match = re.search(
-         '^#--------------------------------------------------\n' + \
-         '# {}\n\n^page {{?{}}}? ([{{]?)(.+?)([}}]?) ([0-9]+?)\n\n\n'.format(
-            re.escape( page_title ), re.escape( page_title )
-         ),
-         self.contents,
-         re.MULTILINE | re.DOTALL
-      )
-
-      if None != page_match:
-         page.update( { 'body': page_match.groups()[1] } )
-         if '{' != page_match.groups()[0]:
-            # No curly brace present, so do extra parsing to remove escaped
-            # whitespace.
-            page_body = page.get( 'body' )
-            page_body = page.get( 'body' ).decode( 'string_escape' )
-            page_body = page.get( 'body' ).replace( '\\ ', ' ' )
-            page_body = page.get( 'body' ).replace( '\\{', '{' )
-            page_body = page.get( 'body' ).replace( '\\}', '}' )
-            page.update( { 'body': page_body } )
-
-         page.update( { 'updated': page_match.groups()[3] } )
+      
+      # Fill in the defaults with data from the parser plugin.
+      new_page = self._parser.get_page( page_title )
+      if None != new_page:
+         page.update( new_page )
 
       return page
 
    def get_page_html( self, page_title ):
+      return self._parser.get_page_html( page_title )
 
-      ''' Return the contents of the requested page formatted in HTML. '''
-
-      page_contents = self.get_page( page_title ).get( 'body' )
-
-      # TODO: Parse wiki markup to HTML.
-
-      # = * = -> <h*>
-      page_contents = re.sub(
-         r'^([=]+)(.+?)([=]+)',
-         lambda m: '<h' + str( len( m.group( 1 ) ) ) + '>' + m.group( 2 ) + \
-            '</h' + str( len( m.group( 1 ) ) ) + '>',
-         page_contents,
-         flags=re.MULTILINE
-      )
-
-      # [] -> <a>
-      page_contents = re.sub(
-         r'[^\\]\[(.+?[^\\])\]',
-         self.format_link,
-         page_contents
-      )
-
-      # Newline -> <br />
-      page_contents = re.sub( r'\n', r'<br />', page_contents )
-
-      # #pre -> <pre>
-      page_contents = page_contents.replace( '#pre', '<pre>' )
-      page_contents = page_contents.replace( '#unpre', '</pre>' )
-
-      return page_contents
-
-   def format_link( self, page_name ):
-      
-      # Get the page name as a string.
-      try:
-         page_name = page_name.group( 1 )
-      except:
-         # Must've been a string to start.
-         pass
-
-      link_classes = []
-      
-      # See if the page name exists.
-      if '' == self.get_page( page_name ):
-         link_classes.append( 'missing' )
-
-      return r'<a class="' + ' '.join( link_classes ) + r'" href="wiki:///' + \
-         urllib.quote_plus( page_name  ) + r'">' + page_name + r'</a>'
-   
